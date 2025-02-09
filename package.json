@@ -1,0 +1,69 @@
+{
+  "name": "fastify-typebox-module-types",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "A plugin for Fastify that allows you to use TypeBox module types and register them as normal ajv schemas.",
+  "author": {
+    "name": "Martin Acosta",
+    "email": "tinchoz49@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/tinchoz49/fastify-typebox-module-types#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinchoz49/fastify-typebox-module-types.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tinchoz49/fastify-typebox-module-types/issues"
+  },
+  "keywords": [
+    "fastify-typebox-module-types",
+    "typebox",
+    "fastify",
+    "ajv",
+    "json-schemas",
+    "types"
+  ],
+  "browser": "./dist/cjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/cjs/index.js",
+  "files": [
+    "bin",
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build:clean": "rimraf ./dist",
+    "build:cjs": "tsc -p tsconfig.build.json --outDir dist/cjs --module CommonJS --moduleResolution Node10",
+    "build:esm": "tsc -p tsconfig.build.json --outDir dist/esm",
+    "build": "npm run build:clean && npm run build:cjs && npm run build:esm",
+    "test": "tsx --test",
+    "test:update": "npm run test",
+    "test:types": "tsc --noEmit",
+    "posttest": "npm run lint",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
+    "prepublishOnly": "npm run build && npm run test && npm run test:types"
+  },
+  "dependencies": {
+    "fastify-plugin": "^5.0.1"
+  },
+  "devDependencies": {
+    "@fastify/type-provider-typebox": "^5.1.0",
+    "@sinclair/typebox": "^0.34.15",
+    "@types/node": "^22.7.4",
+    "eslint": "^9.11.1",
+    "eslint-config-standard-ext": "^2.2.3",
+    "expect-type": "^1.1.0",
+    "fastify": "^5.2.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.2"
+  }
+}
