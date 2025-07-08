@@ -48,6 +48,7 @@ declare module 'fastify-typebox-module' {
 
 const app = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
+// this is important to wait for the schemas to be registered before using them in the routes
 await app.register(fastifyTypeboxModule, {
   schemas,
 })
