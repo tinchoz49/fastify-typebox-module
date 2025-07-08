@@ -1,15 +1,46 @@
-/* eslint-disable ts/prefer-ts-expect-error */
-/* eslint-disable ts/ban-ts-comment */
+import { type SchemaOptions, type Static, type TImport, type TSchema, type TUnsafe, Type } from '@sinclair/typebox'
 import type { FastifyPluginAsync } from 'fastify'
-
-import { type SchemaOptions, type TSchema, Type } from '@sinclair/typebox'
 import fp from 'fastify-plugin'
 
-export interface FastifyTypeboxModuleTypesOptions {
-  schemas: Record<string, TSchema>
+declare module 'fastify' {
+  interface FastifyInstance {
+    typeboxModule: FastifyTypeboxModuleInstance
+  }
 }
 
-const fastifyTypeboxModuleTypes: FastifyPluginAsync<FastifyTypeboxModuleTypesOptions> = async (app, options) => {
+export type FastifyTypeboxModulePlugin = FastifyPluginAsync<FastifyTypeboxModuleOptions>
+
+// biome-ignore lint/suspicious/noEmptyInterface: this is a declaration
+export interface FastifyTypeboxModule {
+  // schemas: Record<string, TSchema>
+}
+
+export type FastifyTypeboxModuleSchemas = FastifyTypeboxModule extends { schemas: infer T }
+  ? T extends Record<string, TSchema>
+    ? T
+    : Record<string, TSchema>
+  : Record<string, TSchema>
+
+export interface FastifyTypeboxModuleOptions {
+  schemas: FastifyTypeboxModuleSchemas
+}
+
+type Module = ReturnType<typeof Type.Module<FastifyTypeboxModuleSchemas>>
+type ImportModule = Module['Import']
+type ImportModuleKeys = Parameters<ImportModule>[0]
+
+export type SchemaType<K extends ImportModuleKeys> = ImportModule extends (key: K, options?: SchemaOptions) => infer R
+  ? R extends TImport<infer T>
+    ? Static<TImport<T, K>>
+    : never
+  : never
+
+export interface FastifyTypeboxModuleInstance {
+  import: ImportModule
+  ref: <K extends ImportModuleKeys>(key: K, options?: SchemaOptions) => TUnsafe<SchemaType<K>>
+}
+
+const fastifyTypeboxModulePlugin: FastifyTypeboxModulePlugin = async (app, options) => {
   const Module = Type.Module(options.schemas)
 
   const { $defs } = Module as unknown as { $defs: Record<string, TSchema> }
@@ -21,17 +52,15 @@ const fastifyTypeboxModuleTypes: FastifyPluginAsync<FastifyTypeboxModuleTypesOpt
     }
   })
 
-  // @ts-ignore
-  app.decorate('module', Module)
-  // @ts-ignore
-  app.decorate('ref', (key: string, options: SchemaOptions) => Type.Ref(key, options))
+  const extend = {
+    import: Module.Import,
+    ref: <K extends ImportModuleKeys>(key: K, options?: SchemaOptions) =>
+      Type.Unsafe<SchemaType<K>>(Type.Ref(key as string, options)),
+  }
+
+  app.decorate('typeboxModule', extend)
 }
 
-export default fp(fastifyTypeboxModuleTypes, {
-  name: 'fastify-typebox-module-types',
+export default fp(fastifyTypeboxModulePlugin, {
+  name: 'fastify-typebox-module',
 })
-
-export interface FastifyTypeboxModuleTypesPlugin<S extends Record<string, TSchema>> {
-  module: ReturnType<typeof Type.Module<S>>
-  ref: ReturnType<typeof Type.Module<S>>['Import']
-}

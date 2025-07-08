@@ -1,23 +1,23 @@
 {
-  "name": "fastify-typebox-module-types",
+  "name": "fastify-typebox-module",
   "type": "module",
   "version": "0.0.1",
-  "description": "A plugin for Fastify that allows you to use TypeBox module types and register them as normal ajv schemas.",
+  "description": "A plugin for Fastify that allows you to use TypeBox module schemas and register them as normal ajv schemas.",
   "author": {
     "name": "Martin Acosta",
     "email": "tinchoz49@gmail.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/tinchoz49/fastify-typebox-module-types#readme",
+  "homepage": "https://github.com/tinchoz49/fastify-typebox-module#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tinchoz49/fastify-typebox-module-types.git"
+    "url": "git+https://github.com/tinchoz49/fastify-typebox-module.git"
   },
   "bugs": {
-    "url": "https://github.com/tinchoz49/fastify-typebox-module-types/issues"
+    "url": "https://github.com/tinchoz49/fastify-typebox-module/issues"
   },
   "keywords": [
-    "fastify-typebox-module-types",
+    "fastify-typebox-module",
     "typebox",
     "fastify",
     "ajv",
@@ -44,22 +44,22 @@
     "build:esm": "tsc -p tsconfig.build.json --outDir dist/esm",
     "build": "npm run build:clean && npm run build:cjs && npm run build:esm",
     "test": "tsx --test",
-    "test:update": "npm run test",
     "test:types": "tsc --noEmit",
     "posttest": "npm run lint",
-    "lint": "eslint .",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "prepublishOnly": "npm run build && npm run test && npm run test:types"
   },
   "dependencies": {
+    "@fastify/jwt": "^9.1.0",
     "fastify-plugin": "^5.0.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.0.6",
     "@fastify/type-provider-typebox": "^5.1.0",
     "@sinclair/typebox": "^0.34.15",
     "@types/node": "^22.7.4",
-    "eslint": "^9.11.1",
-    "eslint-config-standard-ext": "^2.2.3",
+    "biome-standard-mate": "^1.0.0",
     "expect-type": "^1.1.0",
     "fastify": "^5.2.1",
     "rimraf": "^6.0.1",

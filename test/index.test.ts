@@ -1,12 +1,12 @@
 import assert from 'node:assert'
 import { test } from 'node:test'
 
-import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
-import { type Static, Type } from '@sinclair/typebox'
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { Type } from '@sinclair/typebox'
 import { expectTypeOf } from 'expect-type'
 import fastify from 'fastify'
 
-import fastifyTypeboxModuleTypes, { type FastifyTypeboxModuleTypesPlugin } from '../src/index.js'
+import fastifyTypeboxModuleTypesPlugin, { type SchemaType } from '../src/index.js'
 
 const schemas = {
   UserParams: Type.Object({
@@ -28,21 +28,23 @@ const schemas = {
   }),
 }
 
-declare module 'fastify' {
-  interface FastifyInstance extends FastifyTypeboxModuleTypesPlugin<typeof schemas> {}
+declare module '../src/index.js' {
+  interface FastifyTypeboxModule {
+    schemas: typeof schemas
+  }
 }
 
 test('basic behavior', async () => {
   const app = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
-  await app.register(fastifyTypeboxModuleTypes, {
+  await app.register(fastifyTypeboxModuleTypesPlugin, {
     schemas,
   })
 
-  expectTypeOf(app).toHaveProperty('ref')
-  expectTypeOf(app).toHaveProperty('module')
+  expectTypeOf(app.typeboxModule).toHaveProperty('import')
+  expectTypeOf(app.typeboxModule).toHaveProperty('ref')
 
-  const user: Static<ReturnType<typeof app.ref<'User'>>> = {
+  const user: SchemaType<'User'> = {
     id: '1',
     name: 'John Doe',
     address: { street: '123 Main St', city: 'Anytown', zip: '12345' },
@@ -52,20 +54,32 @@ test('basic behavior', async () => {
   expectTypeOf(user).toEqualTypeOf<{
     id: string
     name: string
-    address: { street: string, city: string, zip: string }
+    address: { street: string; city: string; zip: string }
     phones: Array<{ number: string }>
   }>()
 
   app.get('/user/:id', {
     schema: {
-      params: app.ref('UserParams'),
+      params: Type.Object({
+        id: Type.String(),
+      }),
+      querystring: Type.Object({
+        allowToUseRefHere: Type.Optional(app.typeboxModule.ref('Address')),
+      }),
       response: {
-        200: app.ref('User'),
+        200: app.typeboxModule.ref('User'),
       },
     },
-    handler: async (request, reply) => {
+    handler: async (request) => {
       expectTypeOf(request.params).toHaveProperty('id')
-      expectTypeOf(request.params).toEqualTypeOf<{ id: string }>()
+      expectTypeOf(request.params).toEqualTypeOf<{
+        id: string
+      }>()
+
+      expectTypeOf(request.query).toHaveProperty('allowToUseRefHere')
+      expectTypeOf(request.query).toEqualTypeOf<{
+        allowToUseRefHere?: { street: string; city: string; zip: string } | undefined
+      }>()
 
       return user
     },

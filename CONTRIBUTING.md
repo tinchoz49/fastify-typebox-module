@@ -1,4 +1,4 @@
-# Contributing to fastify-typebox-module-types
+# Contributing to fastify-typebox-module
 
 ## Issue Contributions
 
@@ -13,13 +13,13 @@ This document will guide you through the contribution process.
 
 ### Step 1: Fork
 
-Fork the project [on GitHub](https://github.com/tinchoz49/fastify-typebox-module-types) and check out your copy locally.
+Fork the project [on GitHub](https://github.com/tinchoz49/fastify-typebox-module) and check out your copy locally.
 
 ```bash
-$ git clone git@github.com:tinchoz49/fastify-typebox-module-types.git
-$ cd fastify-typebox-module-types
+$ git clone git@github.com:tinchoz49/fastify-typebox-module.git
+$ cd fastify-typebox-module
 $ npm install
-$ git remote add upstream git://github.com/tinchoz49/fastify-typebox-module-types.git
+$ git remote add upstream git://github.com/tinchoz49/fastify-typebox-module.git
 ```
 
 ### Step 2: Branch
