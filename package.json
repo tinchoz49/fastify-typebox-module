@@ -1,7 +1,7 @@
 {
   "name": "fastify-typebox-module",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A plugin for Fastify that allows you to use TypeBox module schemas and register them as normal ajv schemas.",
   "author": {
     "name": "Martin Acosta",
